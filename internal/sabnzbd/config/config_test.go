@@ -54,7 +54,7 @@ func TestLoadConfig_Environment(t *testing.T) {
 
 	require := require.New(t)
 	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
-	t.Setenv("SAB_CONFIG", fixturePath)
+	t.Setenv("CONFIG", fixturePath)
 
 	config, err := LoadSabnzbdConfig(c, flags)
 	require.NoError(err)
@@ -77,7 +77,7 @@ func TestLoadConfig_Flags(t *testing.T) {
 	}
 
 	// should be overridden by flags
-	t.Setenv("SAB_CONFIG", "other.ini")
+	t.Setenv("CONFIG", "other.ini")
 
 	require := require.New(t)
 	config, err := LoadSabnzbdConfig(c, flags)
@@ -110,7 +110,7 @@ func TestLoadConfig_INIConfig(t *testing.T) {
 func TestLoadConfig_INIConfigEnv(t *testing.T) {
 	flags := testFlagSet()
 	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
-	t.Setenv("SAB_CONFIG", fixturePath)
+	t.Setenv("CONFIG", fixturePath)
 	c := base_config.Config{
 		URL: "http://localhost",
 	}
