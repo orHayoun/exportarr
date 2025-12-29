@@ -4,7 +4,7 @@
 //
 // The configuration is loaded in the following priority order:
 // 1. Defaults
-// 2. Environment variables (with SABNZBD__ prefix)
+// 2. Environment variables
 // 3. Command-line flags
 // 4. sabnzbd.ini file (if --config flag is provided)
 //
@@ -59,7 +59,7 @@ type SabnzbdConfig struct {
 //
 // The configuration is loaded in the following priority order:
 // 1. Defaults
-// 2. Environment variables (with SABNZBD__ prefix, converted to lowercase with dashes)
+// 2. Environment variables (converted to lowercase with dashes)
 // 3. Command-line flags
 // 4. sabnzbd.ini file (if --config flag is provided)
 //
@@ -82,10 +82,9 @@ func LoadSabnzbdConfig(conf base_config.Config, flags *flag.FlagSet) (*SabnzbdCo
 	}
 
 	// Environment
-	err = k.Load(env.Provider("SAB_", ".", func(s string) string {
-		// Strip SAB_ prefix if present, then transform
-		s = strings.TrimPrefix(strings.ToUpper(s), "SAB_")
+	err = k.Load(env.Provider("", ".", func(s string) string {
 		s = strings.ToLower(s)
+		s = strings.ReplaceAll(s, "__", ".")
 		s = strings.ReplaceAll(s, "_", "-")
 		return s
 	}), nil)
