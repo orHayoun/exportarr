@@ -1,12 +1,23 @@
 package config
 
 import (
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	base_config "github.com/onedr0p/exportarr/internal/config"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/require"
 )
+
+// getTestFixturePath returns the absolute path to a test fixture file.
+// It resolves the path relative to the test file location, not the working directory.
+func getTestFixturePath(t *testing.T, filename string) string {
+	// Get the directory of the test file that called this function
+	_, testFile, _, _ := runtime.Caller(1)
+	testDir := filepath.Dir(testFile)
+	return filepath.Join(testDir, "test_fixtures", filename)
+}
 
 func testFlagSet() *pflag.FlagSet {
 	ret := pflag.NewFlagSet("test", pflag.ContinueOnError)
@@ -42,12 +53,13 @@ func TestLoadConfig_Environment(t *testing.T) {
 	}
 
 	require := require.New(t)
-	t.Setenv("SAB_CONFIG", "test_fixtures/sabnzbd.ini")
+	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
+	t.Setenv("SAB_CONFIG", fixturePath)
 
 	config, err := LoadSabnzbdConfig(c, flags)
 	require.NoError(err)
 
-	require.Equal("test_fixtures/sabnzbd.ini", config.INIConfig)
+	require.Equal(fixturePath, config.INIConfig)
 
 	// base config values are not overwritten
 	require.Equal("http://localhost:8080", config.URL)
@@ -57,7 +69,8 @@ func TestLoadConfig_Environment(t *testing.T) {
 
 func TestLoadConfig_Flags(t *testing.T) {
 	flags := testFlagSet()
-	flags.Set("config", "test_fixtures/sabnzbd.ini")
+	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
+	flags.Set("config", fixturePath)
 	c := base_config.Config{
 		URL:    "http://localhost:8080",
 		ApiKey: "abcdef0123456789abcdef0123456789",
@@ -69,7 +82,7 @@ func TestLoadConfig_Flags(t *testing.T) {
 	require := require.New(t)
 	config, err := LoadSabnzbdConfig(c, flags)
 	require.NoError(err)
-	require.Equal("test_fixtures/sabnzbd.ini", config.INIConfig)
+	require.Equal(fixturePath, config.INIConfig)
 
 	require.Equal("http://localhost:8080", config.URL)
 	require.Equal("abcdef0123456789abcdef0123456789", config.ApiKey)
@@ -77,7 +90,8 @@ func TestLoadConfig_Flags(t *testing.T) {
 
 func TestLoadConfig_INIConfig(t *testing.T) {
 	flags := testFlagSet()
-	flags.Set("config", "test_fixtures/sabnzbd.ini")
+	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
+	flags.Set("config", fixturePath)
 	c := base_config.Config{
 		URL: "http://localhost",
 	}
@@ -95,7 +109,8 @@ func TestLoadConfig_INIConfig(t *testing.T) {
 
 func TestLoadConfig_INIConfigEnv(t *testing.T) {
 	flags := testFlagSet()
-	t.Setenv("SAB_CONFIG", "test_fixtures/sabnzbd.ini")
+	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
+	t.Setenv("SAB_CONFIG", fixturePath)
 	c := base_config.Config{
 		URL: "http://localhost",
 	}
@@ -112,7 +127,8 @@ func TestLoadConfig_INIConfigEnv(t *testing.T) {
 
 func TestLoadConfig_INIConfigWithBaseURL(t *testing.T) {
 	flags := testFlagSet()
-	flags.Set("config", "test_fixtures/sabnzbd.ini")
+	fixturePath := getTestFixturePath(t, "sabnzbd.ini")
+	flags.Set("config", fixturePath)
 	c := base_config.Config{
 		URL: "http://sabnzbd.example.com:9090",
 	}
