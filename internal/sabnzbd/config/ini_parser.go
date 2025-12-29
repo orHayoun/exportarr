@@ -22,48 +22,48 @@ func INIParser() *INI {
 func (p *INI) Unmarshal(b []byte) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 	currentSection := "misc" // Default section for sabnzbd.ini
-	
+
 	scanner := bufio.NewScanner(strings.NewReader(string(b)))
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		
+
 		// Skip empty lines and comments
 		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, ";") {
 			continue
 		}
-		
+
 		// Skip version and encoding headers
 		if strings.Contains(line, "sabnzbd.ini_version__") || strings.Contains(line, "__encoding__") {
 			continue
 		}
-		
+
 		// Check for section header [section]
 		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
 			currentSection = strings.Trim(line, "[]")
 			continue
 		}
-		
+
 		// Parse key = value
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
 			continue
 		}
-		
+
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-		
+
 		// Remove quotes if present
 		value = strings.Trim(value, `"`)
-		
+
 		// Store as section.key
 		fullKey := currentSection + "." + key
 		result[fullKey] = value
 	}
-	
+
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error scanning INI file: %w", err)
 	}
-	
+
 	return result, nil
 }
 
@@ -186,4 +186,3 @@ func convertToString(val interface{}) string {
 		return fmt.Sprintf("%v", v)
 	}
 }
-
