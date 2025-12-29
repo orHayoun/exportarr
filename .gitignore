@@ -1,6 +1,7 @@
 # Project
 /exportarr
 *.xml
+sabnzbd.ini
 
 # Go
 /vendor

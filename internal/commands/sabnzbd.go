@@ -8,6 +8,7 @@ import (
 )
 
 func init() {
+	config.RegisterSabnzbdFlags(sabnzbdCmd.PersistentFlags())
 	rootCmd.AddCommand(sabnzbdCmd)
 }
 
@@ -17,7 +18,7 @@ var sabnzbdCmd = &cobra.Command{
 	Short:   "Prometheus Exporter for Sabnzbd",
 	Long:    "Prometheus Exporter for Sabnzbd.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		c, err := config.LoadSabnzbdConfig(*conf)
+		c, err := config.LoadSabnzbdConfig(*conf, cmd.PersistentFlags())
 		if err != nil {
 			return err
 		}
